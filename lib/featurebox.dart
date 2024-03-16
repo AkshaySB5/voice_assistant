@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:voice_assistant/pallete.dart';
@@ -5,7 +6,8 @@ import 'package:voice_assistant/pallete.dart';
 class FeatureBox extends StatelessWidget {
   final Color colour;
   final String htext;
-  const FeatureBox({super.key, required this.colour,required this.htext});
+  final String description;
+  const FeatureBox({super.key, required this.colour, required this.htext,required this.description});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -13,14 +15,35 @@ class FeatureBox extends StatelessWidget {
       decoration: BoxDecoration(
           color: colour,
           borderRadius: const BorderRadius.all(Radius.circular(15))),
-      child:  Text(
-      htext,style: const TextStyle(
-        fontFamily: 'Cera Pro',
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Pallete.blackColor
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20).copyWith(
+          left:15
+        ),
+        child: Column(
+          children: [
+            Align(alignment: Alignment.centerLeft,
+              child: Text(
+                htext,
+                style: const TextStyle(
+                    fontFamily: 'Cera Pro',
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Pallete.blackColor),
+              ),
+            ),
+            const SizedBox(height: 3),
+        Padding(
+          padding: const EdgeInsets.only(right: 15),
+          child: Text(
+            description,
+            style: const TextStyle(
+                fontFamily: 'Cera Pro',
+                color: Pallete.blackColor,
+                fontSize: 16),
+          ),
+        )]),
       ),
-      ),
+
     );
   }
 }

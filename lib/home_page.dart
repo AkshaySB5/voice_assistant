@@ -94,8 +94,9 @@ class  _HomePageState extends State <HomePage> {
           ),
           const Column(
             children: [
-              FeatureBox(colour: Pallete.firstSuggestionBoxColor,'ChatGPT',),
-
+              FeatureBox(colour: Pallete.firstSuggestionBoxColor,htext:'ChatGPT',description: 'A smarter way to stay organized and informed with ChatGPT'),
+              FeatureBox(colour: Pallete.secondSuggestionBoxColor, htext: 'Dall-E', description: 'Get inspired and stay creative with your personal assistant powered by Dall-E'),
+              FeatureBox(colour: Pallete.thirdSuggestionBoxColor, htext: 'Smart Voice Assistant', description: 'Get the best of both the worlds with a voie assistant powered by Dall-E and ChatGPT ')
 
 
             ],
