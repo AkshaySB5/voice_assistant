@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:voice_assistant/pallete.dart';
@@ -58,18 +59,37 @@ class  _HomePageState extends State <HomePage> {
               decoration: BoxDecoration(
                border: Border.all(),
                color: Pallete.whiteColor,
+               borderRadius: BorderRadius.circular(20).copyWith(
+                topLeft: Radius.zero
+               )
 
 
               ),
               child: const Padding(
                 padding:  EdgeInsets.symmetric(vertical: 10),
-                child: Text('Good Morning,What task can i do for you?',
+                child: Text('Good Morning, What task can i do for you?',
                 style: TextStyle(
                   fontSize: 25,
                   color: Pallete.mainFontColor,
                   fontFamily:'Cera Pro'
                 ),),
               ),
+          ),
+           Container(
+            padding: const EdgeInsets.all(10),
+            margin: const EdgeInsets.only(
+              top:10 ,
+              left:23
+            ),
+            alignment: Alignment.centerLeft,
+            child: const Text('Here are a few features',
+            style: TextStyle(
+              fontFamily: 'Cera Pro',
+              color:Pallete.mainFontColor,
+              fontSize: 20,
+              fontWeight: FontWeight.bold
+
+            ),),
           )
 
         ],
