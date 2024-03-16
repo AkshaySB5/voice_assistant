@@ -1,6 +1,5 @@
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:voice_assistant/pallete.dart';
 
 class FeatureBox extends StatelessWidget {
