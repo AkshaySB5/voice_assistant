@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:voice_assistant/featurebox.dart';
 import 'package:voice_assistant/pallete.dart';
 
 class HomePage extends StatefulWidget {
@@ -90,6 +91,14 @@ class  _HomePageState extends State <HomePage> {
               fontWeight: FontWeight.bold
 
             ),),
+          ),
+          const Column(
+            children: [
+              FeatureBox(colour: Pallete.firstSuggestionBoxColor,'ChatGPT',),
+
+
+
+            ],
           )
 
         ],
