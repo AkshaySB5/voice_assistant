@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Voice Asiistant',
+      title: 'Voice Assistant',
       theme: ThemeData.light(
         useMaterial3: true,
       ).copyWith(

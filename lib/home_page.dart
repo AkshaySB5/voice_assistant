@@ -1,10 +1,12 @@
-import 'package:flutter/cupertino.dart';
+import 'package:voice_assistant/featurebox.dart';
+import 'package:voice_assistant/openaiservice.dart';
+import 'package:voice_assistant/pallete.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-import 'package:voice_assistant/featurebox.dart';
-import 'package:voice_assistant/pallete.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,134 +17,231 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final speechToText = SpeechToText();
+  final flutterTts = FlutterTts();
   String lastWords = '';
+  final OpenAIService openAIService = OpenAIService();
+  String? generatedContent;
+  String? generatedImageUrl;
+  int start = 200;
+  int delay = 200;
+
   @override
   void initState() {
     super.initState();
-    initSpeechtoText();
+    initSpeechToText();
+    initTextToSpeech();
   }
 
-  Future<void> initSpeechtoText() async {
+  Future<void> initTextToSpeech() async {
+    await flutterTts.setSharedInstance(true);
+    setState(() {});
+  }
+
+  Future<void> initSpeechToText() async {
     await speechToText.initialize();
     setState(() {});
   }
 
-  /// Each time to start a speech recognition session
-  void startListening() async {
+  Future<void> startListening() async {
     await speechToText.listen(onResult: onSpeechResult);
     setState(() {});
   }
 
-  /// Manually stop the active speech recognition session
-  /// Note that there are also timeouts that each platform enforces
-  /// and the SpeechToText plugin supports setting timeouts on the
-  /// listen method.
-  void stopListening() async {
+  Future<void> stopListening() async {
     await speechToText.stop();
     setState(() {});
   }
 
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
   void onSpeechResult(SpeechRecognitionResult result) {
     setState(() {
       lastWords = result.recognizedWords;
     });
   }
 
+  Future<void> systemSpeak(String content) async {
+    await flutterTts.speak(content);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    speechToText.stop();
+    flutterTts.stop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Voice Assistant'),
-          leading: const Icon(Icons.menu),
-          centerTitle: true,
+      appBar: AppBar(
+        title: BounceInDown(
+          child: const Text('Allen'),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Stack(
+        leading: const Icon(Icons.menu),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // virtual assistant picture
+            ZoomIn(
+              child: Stack(
                 children: [
                   Center(
                     child: Container(
-                        height: 120,
-                        width: 120,
-                        margin: const EdgeInsets.only(top: 4),
-                        decoration: const BoxDecoration(
-                          color: Pallete.assistantCircleColor,
-                          shape: BoxShape.circle,
-                        )),
+                      height: 120,
+                      width: 120,
+                      margin: const EdgeInsets.only(top: 4),
+                      decoration: const BoxDecoration(
+                        color: Pallete.assistantCircleColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
                   Container(
-                    height: 125,
+                    height: 123,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       image: DecorationImage(
-                          image:
-                              AssetImage('assets/images/virtualAssistant.png')),
+                        image: AssetImage(
+                          'assets/images/virtualAssistant.png',
+                        ),
+                      ),
                     ),
-                  )
+                  ),
                 ],
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                margin: const EdgeInsets.symmetric(horizontal: 40)
-                    .copyWith(top: 30),
-                decoration: BoxDecoration(
-                    border: Border.all(),
-                    color: Pallete.whiteColor,
-                    borderRadius: BorderRadius.circular(20)
-                        .copyWith(topLeft: Radius.zero)),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  child: Text(
-                    'Good Morning, What task can i do for you?',
-                    style: TextStyle(
-                        fontSize: 25,
+            ),
+            // chat bubble
+            FadeInRight(
+              child: Visibility(
+                visible: generatedImageUrl == null,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  margin: const EdgeInsets.symmetric(horizontal: 40).copyWith(
+                    top: 30,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Pallete.borderColor,
+                    ),
+                    borderRadius: BorderRadius.circular(20).copyWith(
+                      topLeft: Radius.zero,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: Text(
+                      generatedContent == null
+                          ? 'Good Morning, what task can I do for you?'
+                          : generatedContent!,
+                      style: TextStyle(
+                        fontFamily: 'Cera Pro',
                         color: Pallete.mainFontColor,
-                        fontFamily: 'Cera Pro'),
+                        fontSize: generatedContent == null ? 25 : 18,
+                      ),
+                    ),
                   ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.all(10),
-                margin: const EdgeInsets.only(top: 10, left: 23),
-                alignment: Alignment.centerLeft,
-                child: const Text(
-                  'Here are a few features',
-                  style: TextStyle(
+            ),
+            if (generatedImageUrl != null)
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(generatedImageUrl!),
+                ),
+              ),
+            SlideInLeft(
+              child: Visibility(
+                visible: generatedContent == null && generatedImageUrl == null,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  alignment: Alignment.centerLeft,
+                  margin: const EdgeInsets.only(top: 10, left: 22),
+                  child: const Text(
+                    'Here are a few features',
+                    style: TextStyle(
                       fontFamily: 'Cera Pro',
                       color: Pallete.mainFontColor,
                       fontSize: 20,
-                      fontWeight: FontWeight.bold),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
-              const Column(
+            ),
+            // features list
+            Visibility(
+              visible: generatedContent == null && generatedImageUrl == null,
+              child: Column(
                 children: [
-                  FeatureBox(
+                  SlideInLeft(
+                    delay: Duration(milliseconds: start),
+                    child: const FeatureBox(
                       colour: Pallete.firstSuggestionBoxColor,
                       htext: 'ChatGPT',
                       description:
-                          'A smarter way to stay organized and informed with ChatGPT'),
-                  FeatureBox(
+                          'A smarter way to stay organized and informed with ChatGPT',
+                    ),
+                  ),
+                  SlideInLeft(
+                    delay: Duration(milliseconds: start + delay),
+                    child: const FeatureBox(
                       colour: Pallete.secondSuggestionBoxColor,
                       htext: 'Dall-E',
                       description:
-                          'Get inspired and stay creative with your personal assistant powered by Dall-E'),
-                  FeatureBox(
+                          'Get inspired and stay creative with your personal assistant powered by Dall-E',
+                    ),
+                  ),
+                  SlideInLeft(
+                    delay: Duration(milliseconds: start + 2 * delay),
+                    child: const FeatureBox(
                       colour: Pallete.thirdSuggestionBoxColor,
                       htext: 'Smart Voice Assistant',
                       description:
-                          'Get the best of both the worlds with a voie assistant powered by Dall-E and ChatGPT ')
+                          'Get the best of both worlds with a voice assistant powered by Dall-E and ChatGPT',
+                    ),
+                  ),
                 ],
-              )
-            ],
+              ),
+            )
+          ],
+        ),
+      ),
+      floatingActionButton: ZoomIn(
+        delay: Duration(milliseconds: start + 3 * delay),
+        child: FloatingActionButton(
+          backgroundColor: Pallete.firstSuggestionBoxColor,
+          onPressed: () async {
+            if (await speechToText.hasPermission &&
+                speechToText.isNotListening) {
+              await startListening();
+            } else if (speechToText.isListening) {
+              final speech = await openAIService.isArtPromptAPI(lastWords);
+              if (speech.contains('https')) {
+                generatedImageUrl = speech;
+                generatedContent = null;
+                setState(() {});
+              } else {
+                generatedImageUrl = null;
+                generatedContent = speech;
+                setState(() {});
+                await systemSpeak(speech);
+              }
+              await stopListening();
+            } else {
+              initSpeechToText();
+            }
+          },
+          child: Icon(
+            speechToText.isListening ? Icons.stop : Icons.mic,
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-            backgroundColor: Pallete.firstSuggestionBoxColor,
-            onPressed: () {},
-            child: const Icon(Icons.mic)));
+      ),
+    );
   }
 }
